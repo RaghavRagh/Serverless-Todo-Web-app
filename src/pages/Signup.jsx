@@ -1,14 +1,15 @@
 import { User } from "lucide-react";
 import { useState } from "react";
 // import api from "../services/api";
-import axios from "axios";
+// import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useSignup } from "../hooks/useAuth";
 
 const Signup = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [formError, setFormError] = useState(null);
   const navigate = useNavigate();
-  const { mutate, isPending, isLoading, isError } = useSignup();
+  const { mutate, isPending, isError, error } = useSignup();
   // const [isLoading, setIsLoading] = useState(false);
   // const [isError, setIsError] = useState(null);
 
@@ -65,6 +66,26 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    mutate(form, {
+      onSuccess: (data) => {
+        if (data?.message === "User already exists") {
+          setFormError(data.message);
+          return;
+        }
+        if (data?.error) {
+          setFormError(data.error || null);
+          return;
+        }
+
+        navigate("/confirm");
+      },
+      onError: (err) => {
+        console.error("Signup error:", err);
+        setFormError(
+          err?.response?.data?.error || err.message || "Unknown error"
+        );
+      },
+    });
   };
 
   return (
@@ -79,11 +100,13 @@ const Signup = () => {
               Create account
             </h2>
             <p className="text-sm text-gray-500">Sign up to your account</p>
-            {isError && (
-              <p className="text-red-600 text-center leading-none">{isError}</p>
+            {(formError || isError) && (
+              <p className="text-red-600 text-center leading-none">
+                {formError || error?.response?.data?.error || "Signup failed"}
+              </p>
             )}
           </div>
-          <form className="mt-6" onSubmit={handleSignUp}>
+          <form className="mt-6" onSubmit={handleSubmit}>
             <div className="mb-5">
               <label className="block text-sm font-medium mb-2" htmlFor="email">
                 Name
@@ -133,7 +156,7 @@ const Signup = () => {
               type="submit"
               className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200"
             >
-              {isLoading ? "Signing up..." : "Sign Up"}
+              {isPending ? "Signing up..." : "Sign Up"}
             </button>
           </form>
           <div className="text-center mt-6">

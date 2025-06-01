@@ -1,64 +1,89 @@
 import { User } from "lucide-react";
 import { useState } from "react";
-// import api from "../services/api";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { useLogin } from "../hooks/useAuth";
 
 const Login = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [isError, setIsError] = useState(null);
   const navigate = useNavigate();
+  const [formError, setFormError] = useState(null);
+
+  const { mutate, isPending, isError, error } = useLogin();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.id]: e.target.value });
 
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     setIsError("");
+  //     setIsLoading(true);
+  //     const res = await axios.post(
+  //       "https://fgtl4lv52k.execute-api.ap-south-1.amazonaws.com/stageTodo/stageTodo/login",
+  //       {
+  //         email: form.email,
+  //         password: form.password,
+  //       }
+  //     );
+
+  //     setIsLoading(false);
+  //     console.log("Res data --> ", res.data);
+
+  //     if (res.data.error) {
+  //       setIsError(res.data.error || null);
+  //       return;
+  //     }
+
+  //     if (!isError) {
+  //       setIsError(null);
+  //       localStorage.setItem(
+  //         "accessToken",
+  //         res.data.data.AuthenticationResult.AccessToken
+  //       );
+  //       localStorage.setItem("idToken", res.data.data.AuthenticationResult.IdToken);
+  //       localStorage.setItem(
+  //         "refreshToken",
+  //         res.data.data.AuthenticationResult.RefreshToken
+  //       );
+  //       navigate("/");
+  //     }
+  //   } catch (error) {
+  //     setIsLoading(false);
+  //     console.log("Error -> ", error);
+  //     console.log("error body -> ", error.body);
+  //     console.log("error message -> ", error.message);
+
+  //     alert(
+  //       "Signup failed: " + error?.response?.data?.message ||
+  //         error.message ||
+  //         "Unknown error"
+  //     );
+  //   }
+  // };
+
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      setIsError("");
-      setIsLoading(true);
-      const res = await axios.post(
-        "https://fgtl4lv52k.execute-api.ap-south-1.amazonaws.com/stageTodo/stageTodo/login",
-        {
-          email: form.email,
-          password: form.password,
+    mutate(form, {
+      onSuccess: (data) => {
+        if (data?.error) {
+          setFormError(data.error);
+          return;
         }
-      );
 
-      setIsLoading(false);
-      console.log("Res data --> ", res.data);
-
-      if (res.data.error) {
-        setIsError(res.data.error || null);
-        return;
-      }
-
-      if (!isError) {
-        setIsError(null);
-        localStorage.setItem(
-          "accessToken",
-          res.data.data.AuthenticationResult.AccessToken
-        );
-        localStorage.setItem("idToken", res.data.data.AuthenticationResult.IdToken);
-        localStorage.setItem(
-          "refreshToken",
-          res.data.data.AuthenticationResult.RefreshToken
-        );
+        const { AccessToken, IdToken, RefreshToken } =
+          data?.data?.AuthenticationResult || {};
+        localStorage.setItem("accessToken", AccessToken);
+        localStorage.setItem("idToken", IdToken);
+        localStorage.setItem("refreshToken", RefreshToken);
         navigate("/");
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.log("Error -> ", error);
-      console.log("error body -> ", error.body);
-      console.log("error message -> ", error.message);
-
-      alert(
-        "Signup failed: " + error?.response?.data?.message ||
-          error.message ||
-          "Unknown error"
-      );
-    }
+      },
+      onError: (err) => {
+        console.error(err);
+        setFormError(err?.response?.data?.error || "Login failed. Try again.");
+      },
+    });
   };
 
   return (
@@ -74,7 +99,9 @@ const Login = () => {
             </h2>
             <p className="text-sm text-gray-500">Log in to your account</p>
             {isError && (
-              <p className="text-red-600 text-center leading-none">{isError}</p>
+              <p className="text-red-600 text-center leading-none">
+                {formError|| error || "Login failed"}
+              </p>
             )}
           </div>
           <form className="mt-6" onSubmit={handleLogin}>
@@ -113,7 +140,7 @@ const Login = () => {
               type="submit"
               className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700 transition duration-200"
             >
-              {isLoading ? "Loging in..." : "Login"}
+              {isPending ? "Loging in..." : "Login"}
             </button>
           </form>
           <div className="mt-6 text-center">
