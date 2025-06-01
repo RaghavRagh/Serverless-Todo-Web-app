@@ -5,47 +5,11 @@ import { useConfirmSignup } from "../hooks/useAuth";
 
 const ConfirmSignup = () => {
   const [form, setForm] = useState({ email: "", code: "" });
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [isError, setIsError] = useState(null);
-  const navigate = useNavigate();
   const { mutate, isPending, isError, error } = useConfirmSignup();
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.id]: e.target.value });
-
-  // const handleConfirm = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   try {
-  //     const res = await axios.post(
-  //       "https://fgtl4lv52k.execute-api.ap-south-1.amazonaws.com/stageTodo/stageTodo/confirm",
-  //       {
-  //         email: form.email,
-  //         code: form.code,
-  //       }
-  //     );
-
-  //     setIsLoading(false);
-  //     console.log("Response data -> ", res.data);
-
-  //     if (res.data.error) {
-  //       setIsError(res.data.error || null);
-  //       return;
-  //     }
-
-  //     if (res.data.message === "User confirmed successfully!") {
-  //       alert("Account confirmed! You can now log in.");
-  //       navigate("/login");
-  //     }
-
-  //   } catch (error) {
-  //     setIsLoading(false);
-  //     console.error(error?.response?.data || error.message);
-  //     alert(
-  //       "Error confirming: " + (error?.response?.data?.message || error.message)
-  //     );
-  //   }
-  // };
 
   const handleConfirm = async (e) => {
     e.preventDefault();
@@ -54,13 +18,11 @@ const ConfirmSignup = () => {
         if (data?.message === "User confirmed successfully!") {
           alert("Account confirmed! You can now log in.");
           navigate("/login");
-        } else {
-          alert("Confirmation failed: " + data?.error || "Unknown error");
         }
       },
       onError: (err) => {
         console.error(err);
-        alert(err?.response?.data?.error || "Failed to confirm. Try again.");
+        // alert(err?.response?.data?.error || "Failed to confirm. Try again.");
       }
     });
   };

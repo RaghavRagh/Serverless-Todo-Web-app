@@ -74,9 +74,12 @@ const Login = () => {
 
         const { AccessToken, IdToken, RefreshToken } =
           data?.data?.AuthenticationResult || {};
+        const { name, email } = data.user;
         localStorage.setItem("accessToken", AccessToken);
         localStorage.setItem("idToken", IdToken);
         localStorage.setItem("refreshToken", RefreshToken);
+        localStorage.setItem("name", name);
+        localStorage.setItem("email", email);
         navigate("/");
       },
       onError: (err) => {

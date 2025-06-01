@@ -8,61 +8,12 @@ import { useSignup } from "../hooks/useAuth";
 const Signup = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [formError, setFormError] = useState(null);
-  const navigate = useNavigate();
   const { mutate, isPending, isError, error } = useSignup();
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [isError, setIsError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.id]: e.target.value });
 
-  // const handleSignUp = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     setIsError("");
-  //     setIsLoading(true);
-  //     const res = await axios.post(
-  //       "https://fgtl4lv52k.execute-api.ap-south-1.amazonaws.com/stageTodo/stageTodo/signup",
-  //       {
-  //         name: form.name,
-  //         email: form.email,
-  //         password: form.password,
-  //       }
-  //     );
-
-  //     setIsLoading(false);
-  //     console.log(res.data);
-
-  //     if (res.data.message === 'User already exists') {
-  //       setIsError(res.data.message);
-  //       return;
-  //     }
-
-  //     if (res.data.error) {
-  //       setIsError(res.data.error || null);
-  //       return;
-  //     }
-
-  //     if (isError === null) {
-  //       alert("Signup successful! Please confirm your email.");
-  //       setIsError(null);
-  //       navigate("/confirm", {
-  //         state: { email: form.email },
-  //       });
-  //     }
-  //   } catch (error) {
-  //     setIsLoading(false);
-  //     console.log("Error -> ", error);
-  //     console.log("error body -> ", error.body);
-  //     console.log("error message -> ", error.message);
-
-  //     alert(
-  //       "Signup failed: " + error?.response?.data?.message ||
-  //         error.message ||
-  //         "Unknown error"
-  //     );
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
